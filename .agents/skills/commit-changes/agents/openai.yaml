@@ -1,0 +1,7 @@
+interface:
+  display_name: "Commit Changes"
+  short_description: "Create focused, coherent Git commits"
+  default_prompt: "Use $commit-changes to review the current Git changes and create a focused, coherent commit."
+
+policy:
+  allow_implicit_invocation: false
