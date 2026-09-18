@@ -1,0 +1,6 @@
+# IDE and build files
+.idea/
+target/
+
+# OS files
+**/.DS_Store
