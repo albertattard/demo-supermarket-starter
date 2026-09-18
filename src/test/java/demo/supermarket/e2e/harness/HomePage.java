@@ -20,8 +20,35 @@ public final class HomePage {
         return this;
     }
 
-    public HomePage shouldShowCatalogIsNotImplementedYet() {
-        helper.shouldShowText("Catalog functionality is not implemented yet.");
+    public HomePage shouldShowSeededCatalogProduct() {
+        helper.shouldShowHeading("Burger buns");
+        helper.shouldShowText("Burger buns in a convenient 300 g pack.");
+        return this;
+    }
+
+    public HomePage search(final String search) {
+        helper.fillInput("Search", search);
+        helper.clickButton("Apply filters");
+        return this;
+    }
+
+    public HomePage selectCategory(final String categoryName) {
+        helper.selectOptionByLabel("Category", categoryName);
+        return this;
+    }
+
+    public HomePage shouldPreserveSearch(final String search) {
+        helper.shouldHaveInputValue("Search", search);
+        return this;
+    }
+
+    public HomePage shouldShowProduct(final String product) {
+        helper.shouldShowHeading(product);
+        return this;
+    }
+
+    public HomePage shouldNotShowProduct(final String product) {
+        helper.shouldNotShowHeading(product);
         return this;
     }
 }

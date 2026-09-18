@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Demo Supermarket</title>
+  <link rel="stylesheet" href="/css/application.css">
+  <script src="/webjars/htmx.org/dist/htmx.min.js" defer></script>
+</head>
+<body>
+  <main class="page catalog-page">
+    <header class="catalog-header">
+      <div>
+        <p class="eyebrow">Fresh demo data</p>
+        <h1>Demo Supermarket</h1>
+      </div>
+      <p class="catalog-summary" th:text="${catalog.products.size()} + ' products available'">0 products available</p>
+    </header>
+
+    <form class="catalog-filters" action="/products" method="get">
+      <label class="filter-field" for="q">
+        <span>Search</span>
+        <input id="q" name="q" type="search" placeholder="Search products" th:value="${catalog.search}">
+      </label>
+
+      <label class="filter-field" for="category">
+        <span>Category</span>
+        <select id="category" name="category">
+          <option value="">All categories</option>
+          <option th:each="category : ${catalog.categories}"
+                  th:value="${category.id()}"
+                  th:text="${category.name()}"
+                  th:selected="${category.id().equals(catalog.selectedCategoryId)}">
+            Bakery
+          </option>
+        </select>
+      </label>
+
+      <button class="filter-button" type="submit">Apply filters</button>
+    </form>
+
+    <section class="empty-state" th:unless="${catalog.hasProducts()}">
+      <h2>No products found</h2>
+      <p>Try a different search term or category.</p>
+    </section>
+
+    <section class="product-grid" aria-label="Products" th:if="${catalog.hasProducts()}">
+      <article class="product-card" th:each="product : ${catalog.products}">
+        <img class="product-image"
+             th:src="${product.displayImagePath()}"
+             th:alt="${product.name()}">
+        <div class="product-content">
+          <p class="product-category" th:text="${product.categoryName()}">Bakery</p>
+          <h2 th:text="${product.name()}">Sourdough Country Loaf</h2>
+          <p class="product-description" th:text="${product.description()}">Description</p>
+          <div class="product-meta">
+            <span th:text="${product.unitLabel()}">500 g loaf</span>
+            <strong th:text="${product.displayUnitPrice()}">3,95 €</strong>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>
