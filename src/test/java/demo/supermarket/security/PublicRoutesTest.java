@@ -1,5 +1,6 @@
 package demo.supermarket.security;
 
+import jakarta.servlet.RequestDispatcher;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -32,6 +33,14 @@ class PublicRoutesTest {
     void exposesHealthWithoutAuthentication() throws Exception {
         mvc.perform(get("/actuator/health"))
             .andExpect(status().isOk());
+    }
+
+    @Test
+    void exposesErrorPageWithoutAuthentication() throws Exception {
+        mvc.perform(get("/error")
+                .requestAttr(RequestDispatcher.ERROR_STATUS_CODE, 500)
+                .requestAttr(RequestDispatcher.ERROR_REQUEST_URI, "/products"))
+            .andExpect(status().isInternalServerError());
     }
 
     @Test

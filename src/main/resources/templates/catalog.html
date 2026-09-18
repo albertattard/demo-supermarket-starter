@@ -14,10 +14,31 @@
         <p class="eyebrow">Fresh demo data</p>
         <h1>Demo Supermarket</h1>
       </div>
-      <p class="catalog-summary" th:text="${catalog.products.size()} + ' products available'">0 products available</p>
+      <div class="catalog-header-actions">
+        <span id="catalog-cart-link"
+              th:fragment="catalogCartLink(cart, oob)"
+              th:attr="hx-swap-oob=${oob} ? 'outerHTML' : null">
+          <a class="cart-link"
+             th:if="${cart != null && !cart.empty()}"
+             th:href="@{/cart/{cartToken}(cartToken=${cart.token()})}"
+             aria-label="View cart">
+            <span class="cart-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false">
+                <path d="M6.2 6h15.1l-1.7 8.1a2 2 0 0 1-2 1.6H8.8a2 2 0 0 1-2-1.7L5.4 3.8H2.8"></path>
+                <circle cx="9.5" cy="20" r="1.4"></circle>
+                <circle cx="17.5" cy="20" r="1.4"></circle>
+              </svg>
+            </span>
+            <span class="cart-count" th:text="${cart.totalQuantity()}">1</span>
+          </a>
+        </span>
+        <p class="catalog-summary" th:text="${catalog.products.size()} + ' products available'">0 products available</p>
+      </div>
     </header>
 
-    <form class="catalog-filters" action="/products" method="get">
+    <form class="catalog-filters"
+          th:action="${cart == null} ? @{/products} : @{/cart/{cartToken}/products(cartToken=${cart.token()})}"
+          method="get">
       <label class="filter-field" for="q">
         <span>Search</span>
         <input id="q" name="q" type="search" placeholder="Search products" th:value="${catalog.search}">
@@ -57,9 +78,94 @@
             <span th:text="${product.unitLabel()}">500 g loaf</span>
             <strong th:text="${product.displayUnitPrice()}">3,95 €</strong>
           </div>
+          <div class="catalog-cart-control"
+               th:id="'catalog-cart-control-' + ${product.slug()}"
+               th:fragment="productCartControl(product, cart)">
+            <p class="form-error" role="alert" th:if="${catalogCartError}" th:text="${catalogCartError}">
+              Quantity must be between 1 and 99.
+            </p>
+
+            <form class="add-to-cart-form"
+                  th:if="${cart == null || cart.quantityFor(product.slug()) == 0}"
+                  th:action="${cart == null} ? @{/cart/start} : @{/cart/{cartToken}/items(cartToken=${cart.token()})}"
+                  method="post"
+                  th:hx-post="${cart == null} ? null : @{/cart/{cartToken}/items(cartToken=${cart.token()})}"
+                  th:hx-target="${cart == null} ? null : '#catalog-cart-control-' + ${product.slug()}"
+                  th:hx-swap="${cart == null} ? null : 'outerHTML'">
+              <input type="hidden" name="productSlug" th:value="${product.slug()}">
+              <input type="hidden" name="returnTo" value="catalog">
+              <button class="primary-button" type="submit">Add to cart</button>
+            </form>
+
+            <div class="catalog-quantity-control" th:if="${cart != null && cart.quantityFor(product.slug()) > 0}">
+              <form th:if="${cart.quantityFor(product.slug()) > 1}"
+                    th:action="@{/cart/{cartToken}/items/{productSlug}(cartToken=${cart.token()},productSlug=${product.slug()})}"
+                    method="post"
+                    th:hx-post="@{/cart/{cartToken}/items/{productSlug}(cartToken=${cart.token()},productSlug=${product.slug()})}"
+                    th:hx-target="'#catalog-cart-control-' + ${product.slug()}"
+                    hx-swap="outerHTML">
+                <input type="hidden" name="quantity" th:value="${cart.quantityFor(product.slug()) - 1}">
+                <input type="hidden" name="returnTo" value="catalog">
+                <button class="quantity-button" type="submit" th:aria-label="'Decrease ' + ${product.name()}">-</button>
+              </form>
+
+              <form th:if="${cart.quantityFor(product.slug()) == 1}"
+                    th:action="@{/cart/{cartToken}/items/{productSlug}/remove(cartToken=${cart.token()},productSlug=${product.slug()})}"
+                    method="post"
+                    th:hx-post="@{/cart/{cartToken}/items/{productSlug}/remove(cartToken=${cart.token()},productSlug=${product.slug()})}"
+                    th:hx-target="'#catalog-cart-control-' + ${product.slug()}"
+                    hx-swap="outerHTML">
+                <input type="hidden" name="returnTo" value="catalog">
+                <button class="quantity-button" type="submit" th:aria-label="'Decrease ' + ${product.name()}">-</button>
+              </form>
+
+              <div class="catalog-quantity-form">
+                <label class="visually-hidden" th:for="'catalog-quantity-' + ${product.slug()}">Quantity</label>
+                <input class="catalog-quantity"
+                       th:id="'catalog-quantity-' + ${product.slug()}"
+                       type="number"
+                       readonly
+                       th:value="${cart.quantityFor(product.slug())}">
+              </div>
+
+              <form th:if="${cart.quantityFor(product.slug()) < 99}"
+                    th:action="@{/cart/{cartToken}/items(cartToken=${cart.token()})}"
+                    method="post"
+                    th:hx-post="@{/cart/{cartToken}/items(cartToken=${cart.token()})}"
+                    th:hx-target="'#catalog-cart-control-' + ${product.slug()}"
+                    hx-swap="outerHTML">
+                <input type="hidden" name="productSlug" th:value="${product.slug()}">
+                <input type="hidden" name="returnTo" value="catalog">
+                <button class="quantity-button" type="submit" th:aria-label="'Increase ' + ${product.name()}">+</button>
+              </form>
+              <button th:if="${cart.quantityFor(product.slug()) == 99}"
+                      class="quantity-button"
+                      type="button"
+                      disabled
+                      th:aria-label="${product.name()} + ' quantity is at the maximum'">+</button>
+
+              <form th:action="@{/cart/{cartToken}/items/{productSlug}/remove(cartToken=${cart.token()},productSlug=${product.slug()})}"
+                    method="post"
+                    th:hx-post="@{/cart/{cartToken}/items/{productSlug}/remove(cartToken=${cart.token()},productSlug=${product.slug()})}"
+                    th:hx-target="'#catalog-cart-control-' + ${product.slug()}"
+                    hx-swap="outerHTML">
+                <input type="hidden" name="returnTo" value="catalog">
+                <button class="trash-button" type="submit" th:aria-label="'Remove ' + ${product.name()}">
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M3 6h18"></path>
+                    <path d="M8 6V4h8v2"></path>
+                    <path d="M6.5 6l1 14h9l1-14"></path>
+                    <path d="M10 10v6"></path>
+                    <path d="M14 10v6"></path>
+                  </svg>
+                </button>
+              </form>
+            </div>
+          </div>
         </div>
       </article>
     </section>
+
   </main>
 </body>
 </html>
