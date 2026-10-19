@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cart not found - Demo Supermarket</title>
+  <link rel="stylesheet" href="/css/application.css">
+</head>
+<body>
+  <main class="page cart-page">
+    <section class="empty-state">
+      <p class="eyebrow">Shopping bag</p>
+      <h1 th:text="${notFoundTitle}">Cart not found</h1>
+      <p th:text="${notFoundMessage}">This cart link is no longer available.</p>
+      <a class="primary-link" href="/products">Back to products</a>
+    </section>
+  </main>
+</body>
+</html>

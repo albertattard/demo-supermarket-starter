@@ -1,10 +1,13 @@
 package demo.supermarket.e2e.harness;
 
+import module java.base;
+
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
-import com.microsoft.playwright.options.AriaRole;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+
+import com.microsoft.playwright.options.AriaRole;
 
 final class PageHelper {
 
@@ -58,5 +61,13 @@ final class PageHelper {
 
     void shouldShowVisible(final Locator locator) {
         assertThat(locator).isVisible();
+    }
+
+    String currentPath() {
+        return URI.create(page.url()).getPath();
+    }
+
+    void shouldHavePathMatching(final Pattern pattern) {
+        org.assertj.core.api.Assertions.assertThat(currentPath()).matches(pattern);
     }
 }

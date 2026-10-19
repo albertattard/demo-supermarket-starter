@@ -98,4 +98,23 @@ class CatalogControllerTest {
             .andExpect(content().string(containsString("€")))
             .andExpect(content().string(containsString("/images/products/sourdough-country-loaf-500g.png")));
     }
+
+    @Test
+    void catalogAddToCartStartsCartThroughOnlyStartRoute() throws Exception {
+        mvc.perform(get("/products").param("q", "sourdough"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("action=\"/cart/start\"")))
+            .andExpect(content().string(containsString("name=\"productSlug\" value=\"sourdough-country-loaf-500g\"")))
+            .andExpect(content().string(containsString("name=\"returnTo\" value=\"catalog\"")))
+            .andExpect(content().string(not(containsString("/cart/catalog/"))))
+            .andExpect(content().string(not(containsString("guest_cart_token"))));
+    }
+
+    @Test
+    void unknownCartScopedCatalogTokenReturnsCustomerFacingNotFound() throws Exception {
+        mvc.perform(get("/cart/not-a-real-token/products"))
+            .andExpect(status().isNotFound())
+            .andExpect(content().string(containsString("Cart not found")))
+            .andExpect(content().string(containsString("Back to products")));
+    }
 }

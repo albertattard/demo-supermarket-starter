@@ -16,6 +16,8 @@ class SecurityConfiguration {
                 .requestMatchers(
                     "/",
                     "/products",
+                    "/cart/**",
+                    "/error",
                     "/actuator/health",
                     "/css/**",
                     "/js/**",

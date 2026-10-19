@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-class CatalogService {
+public class CatalogService {
 
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
@@ -17,7 +17,7 @@ class CatalogService {
     }
 
     @Transactional(readOnly = true)
-    CatalogView findCatalog(final Long categoryId, final String search) {
+    public CatalogView findCatalog(final Long categoryId, final String search) {
         final String displaySearch = normalizeDisplaySearch(search);
         final String searchPattern = searchPattern(displaySearch);
 
@@ -32,6 +32,13 @@ class CatalogService {
             .toList();
 
         return new CatalogView(categories, products, categoryId, displaySearch == null ? "" : displaySearch);
+    }
+
+    @Transactional(readOnly = true)
+    public CatalogProduct findActiveProduct(final String productSlug) {
+        return productRepository.findBySlugAndActiveTrue(productSlug)
+            .map(CatalogService::mapCatalogProduct)
+            .orElseThrow();
     }
 
     private static String normalizeDisplaySearch(final String search) {
@@ -65,7 +72,7 @@ class CatalogService {
 
     private static CatalogProduct mapCatalogProduct(final Product product) {
         return new CatalogProduct(
-            product.getId(),
+            product.getSlug(),
             product.getName(),
             product.getDescription(),
             product.getCategory().getName(),

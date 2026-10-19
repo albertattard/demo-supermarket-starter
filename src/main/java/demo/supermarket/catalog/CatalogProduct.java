@@ -3,7 +3,7 @@ package demo.supermarket.catalog;
 import module java.base;
 
 public record CatalogProduct(
-    Long id,
+    String slug,
     String name,
     String description,
     String categoryName,
