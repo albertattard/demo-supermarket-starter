@@ -15,6 +15,7 @@ class SecurityConfiguration {
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(
                     "/",
+                    "/products",
                     "/actuator/health",
                     "/css/**",
                     "/js/**",

@@ -29,6 +29,11 @@ final class PageHelper {
             new Page.GetByRoleOptions().setName(heading))).isVisible();
     }
 
+    void shouldNotShowHeading(final String heading) {
+        assertThat(page.getByRole(AriaRole.HEADING,
+            new Page.GetByRoleOptions().setName(heading))).not().isVisible();
+    }
+
     void clickLink(final String name) {
         page.getByRole(AriaRole.LINK,
             new Page.GetByRoleOptions().setName(name)).click();
@@ -41,6 +46,14 @@ final class PageHelper {
 
     void fillInput(final String label, final String value) {
         page.getByLabel(label).fill(value);
+    }
+
+    void selectOptionByLabel(final String label, final String optionLabel) {
+        page.getByLabel(label).selectOption(new String[]{optionLabel});
+    }
+
+    void shouldHaveInputValue(final String label, final String value) {
+        assertThat(page.getByLabel(label)).hasValue(value);
     }
 
     void shouldShowVisible(final Locator locator) {
