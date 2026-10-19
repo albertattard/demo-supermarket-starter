@@ -18,8 +18,8 @@ public class CatalogService {
 
     @Transactional(readOnly = true)
     public CatalogView findCatalog(final Long categoryId, final String search) {
-        final String displaySearch = normalizeDisplaySearch(search);
-        final String searchPattern = searchPattern(displaySearch);
+        final Optional<String> displaySearch = normalizeDisplaySearch(search);
+        final String searchPattern = displaySearch.map(CatalogService::searchPattern).orElse(null);
 
         final List<CatalogCategory> categories = categoryRepository.findByActiveTrueOrderByNameAsc()
             .stream()
@@ -31,7 +31,7 @@ public class CatalogService {
             .map(CatalogService::mapCatalogProduct)
             .toList();
 
-        return new CatalogView(categories, products, categoryId, displaySearch == null ? "" : displaySearch);
+        return new CatalogView(categories, products, categoryId, displaySearch.orElse(""));
     }
 
     @Transactional(readOnly = true)
@@ -41,24 +41,13 @@ public class CatalogService {
             .orElseThrow();
     }
 
-    private static String normalizeDisplaySearch(final String search) {
-        if (search == null) {
-            return null;
-        }
-
-        final String trimmed = search.trim();
-        if (trimmed.isEmpty()) {
-            return null;
-        }
-
-        return trimmed;
+    private static Optional<String> normalizeDisplaySearch(final String search) {
+        return Optional.ofNullable(search)
+            .map(String::trim)
+            .filter(Predicate.not(String::isEmpty));
     }
 
     private static String searchPattern(final String displaySearch) {
-        if (displaySearch == null) {
-            return null;
-        }
-
         return "%" + displaySearch.toLowerCase(Locale.ROOT).replace("\\", "\\\\")
             .replace("%", "\\%")
             .replace("_", "\\_") + "%";
