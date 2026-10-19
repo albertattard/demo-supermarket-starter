@@ -1,0 +1,4 @@
+interface:
+  display_name: "Review Implementation"
+  short_description: "Independently review one issue implementation"
+  default_prompt: "Use $review-implementation to review this issue implementation candidate."

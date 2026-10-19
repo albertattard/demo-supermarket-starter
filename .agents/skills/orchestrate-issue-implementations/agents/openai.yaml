@@ -1,0 +1,4 @@
+interface:
+  display_name: "Orchestrate Issue Implementations"
+  short_description: "Coordinate isolated implementation candidates"
+  default_prompt: "Use $orchestrate-issue-implementations to create candidate implementations for this ready GitHub issue."

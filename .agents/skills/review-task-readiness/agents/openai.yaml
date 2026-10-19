@@ -1,0 +1,7 @@
+interface:
+  display_name: "Review Task Readiness"
+  short_description: "Decide whether implementation can start"
+  default_prompt: "Use $review-task-readiness to decide whether this task is ready for implementation."
+
+policy:
+  allow_implicit_invocation: false
