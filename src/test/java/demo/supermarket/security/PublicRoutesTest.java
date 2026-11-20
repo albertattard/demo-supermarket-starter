@@ -23,6 +23,12 @@ class PublicRoutesTest {
     }
 
     @Test
+    void exposesProductsPageWithoutAuthentication() throws Exception {
+        mvc.perform(get("/products"))
+            .andExpect(status().isOk());
+    }
+
+    @Test
     void exposesHealthWithoutAuthentication() throws Exception {
         mvc.perform(get("/actuator/health"))
             .andExpect(status().isOk());

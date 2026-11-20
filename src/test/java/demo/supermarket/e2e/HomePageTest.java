@@ -1,10 +1,11 @@
 package demo.supermarket.e2e;
 
-import demo.supermarket.e2e.harness.E2eHarness;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+
+import demo.supermarket.e2e.harness.E2eHarness;
 
 @Tag("e2e")
 class HomePageTest {
@@ -28,6 +29,22 @@ class HomePageTest {
         harness.homePage(homePage -> homePage
             .openCatalog()
             .shouldShowApplicationName()
-            .shouldShowCatalogIsNotImplementedYet());
+            .shouldShowSeededCatalogProduct());
+    }
+
+    @Test
+    void filtersCatalogBySearchAndCategory() {
+        harness.homePage(homePage -> homePage
+            .openCatalog()
+            .search("tomatoes")
+            .shouldPreserveSearch("tomatoes")
+            .shouldShowProduct("Cherry tomatoes")
+            .shouldShowProduct("Chopped tomatoes")
+            .shouldNotShowProduct("Baby Spinach")
+            .selectCategory("Pantry")
+            .search("tomatoes")
+            .shouldPreserveSearch("tomatoes")
+            .shouldShowProduct("Chopped tomatoes")
+            .shouldNotShowProduct("Cherry tomatoes"));
     }
 }
