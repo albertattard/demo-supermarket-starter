@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "products")
-class Product {
+public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -14,6 +14,9 @@ class Product {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
+
+    @Column(nullable = false, unique = true)
+    private String slug;
 
     @Column(nullable = false)
     private String name;
@@ -39,11 +42,15 @@ class Product {
         return id;
     }
 
+    public String getSlug() {
+        return slug;
+    }
+
     Category getCategory() {
         return category;
     }
 
-    String getName() {
+    public String getName() {
         return name;
     }
 
@@ -51,11 +58,11 @@ class Product {
         return description;
     }
 
-    String getUnitLabel() {
+    public String getUnitLabel() {
         return unitLabel;
     }
 
-    BigDecimal getUnitPrice() {
+    public BigDecimal getUnitPrice() {
         return unitPrice;
     }
 

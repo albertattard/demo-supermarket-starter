@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Your cart - Demo Supermarket</title>
+  <link rel="stylesheet" href="/css/application.css">
+  <script src="/webjars/htmx.org/dist/htmx.min.js" defer></script>
+</head>
+<body>
+  <main class="page cart-page">
+    <header class="catalog-header">
+      <div>
+        <p class="eyebrow">Shopping bag</p>
+        <h1>Your cart</h1>
+      </div>
+      <a class="secondary-link"
+         th:href="@{/cart/{cartToken}/products(cartToken=${cart.token()})}">Continue shopping</a>
+    </header>
+
+    <section class="cart-panel"
+         id="cart-content"
+         aria-label="Cart contents"
+         th:fragment="cartContent">
+  <p class="form-error" role="alert" th:if="${cartError}" th:text="${cartError}">
+    Quantity must be between 1 and 99.
+  </p>
+
+  <div class="empty-state" th:if="${cart.empty()}">
+    <h2>Your cart is empty</h2>
+    <p>Add products from the catalog to start a shopping bag.</p>
+    <a class="primary-link"
+       th:href="@{/cart/{cartToken}/products(cartToken=${cart.token()})}">Browse products</a>
+  </div>
+
+  <div class="cart-lines" th:unless="${cart.empty()}">
+    <article class="cart-line" th:each="line : ${cart.lines()}" th:id="'cart-line-' + ${line.productSlug()}">
+      <div>
+        <h2 th:text="${line.productName()}">Sourdough Country Loaf</h2>
+        <p class="product-description">
+          <span th:text="${line.unitLabel()}">500 g loaf</span>
+          <span aria-hidden="true"> · </span>
+          <span th:text="${line.displayUnitPrice()}">3,95 €</span>
+        </p>
+      </div>
+
+      <form class="quantity-form"
+            th:action="@{/cart/{cartToken}/items/{productSlug}(cartToken=${cart.token()},productSlug=${line.productSlug()})}"
+            method="post"
+            th:hx-post="@{/cart/{cartToken}/items/{productSlug}(cartToken=${cart.token()},productSlug=${line.productSlug()})}"
+            hx-target="#cart-content"
+            hx-swap="outerHTML">
+        <label th:for="'quantity-' + ${line.productSlug()}">Quantity</label>
+        <input th:id="'quantity-' + ${line.productSlug()}"
+               name="quantity"
+               type="number"
+               inputmode="numeric"
+               min="1"
+               max="99"
+               step="1"
+               th:value="${line.quantity()}">
+        <button class="secondary-button" type="submit">Update</button>
+      </form>
+
+      <strong class="line-total" th:text="${line.displayLineTotal()}">3,95 €</strong>
+
+      <form th:action="@{/cart/{cartToken}/items/{productSlug}/remove(cartToken=${cart.token()},productSlug=${line.productSlug()})}"
+            method="post"
+            th:hx-post="@{/cart/{cartToken}/items/{productSlug}/remove(cartToken=${cart.token()},productSlug=${line.productSlug()})}"
+            hx-target="#cart-content"
+            hx-swap="outerHTML">
+        <button class="danger-button" type="submit">Remove</button>
+      </form>
+    </article>
+
+    <footer class="cart-total">
+      <span>Subtotal</span>
+      <strong th:text="${cart.displaySubtotal()}">3,95 €</strong>
+    </footer>
+  </div>
+    </section>
+  </main>
+</body>
+</html>
